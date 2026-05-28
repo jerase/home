@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* ── Animations ───────────────────────────────────────────── */
+
+@keyframes pulse-pawn {
+  0%, 100% { transform: scale(1);    filter: brightness(1);   }
+  50%       { transform: scale(1.2); filter: brightness(1.35); }
+}
+
+@keyframes dice-roll {
+  0%   { transform: rotate(0deg)   scale(1);    }
+  20%  { transform: rotate(-18deg) scale(1.12); }
+  45%  { transform: rotate(16deg)  scale(0.93); }
+  70%  { transform: rotate(-10deg) scale(1.06); }
+  100% { transform: rotate(0deg)   scale(1);    }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes victory-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  65%  { transform: scale(1.1);             }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Classes utilitaires ──────────────────────────────────── */
+
+.pawn-movable {
+  animation: pulse-pawn 0.85s ease-in-out infinite;
+  cursor: pointer;
+}
+
+.dice-rolling {
+  animation: dice-roll 0.55s ease-in-out;
+}
+
+.fade-in   { animation: fade-in    0.35s ease forwards; }
+.slide-up  { animation: slide-up   0.4s  ease forwards; }
+.victory-pop { animation: victory-pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+
+/* ── Layout responsive plein écran ───────────────────────── */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;       /* pas de scroll global — tout tient dans l'écran */
+}
+
+/* Safe area pour les notches mobiles */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
