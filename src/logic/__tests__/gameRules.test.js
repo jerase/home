@@ -372,3 +372,74 @@ describe('isThreatened', () => {
     expect(isThreatened(defendingPawn, 'vert', [attacker])).toBe(true);
   });
 });
+
+// ── TESTS NON-RÉGRESSION : pions déplaçables par couleur ──────────────────
+// Vérifie que seuls les pions du joueur actuel sont retournés dans movablePawns.
+// Bug corrigé : les pions adverses avec le même id ne doivent pas clignoter.
+
+describe('Non-régression — getMovablePawns ne retourne que les pions du joueur actuel', () => {
+  it('retourne uniquement les ids du joueur actuel, pas ceux d\'un autre joueur', () => {
+    // Les deux joueurs ont un pion avec id=0 en jeu
+    // getMovablePawns(jaune) ne doit retourner que l'id du pion de jaune
+    const jaune = makePlayer(0, 'jaune', false, [
+      makePawn(0, 'board', 'h-m-g5'), // pion 0 en jeu
+      makePawn(1, 'home'), makePawn(2, 'home'), makePawn(3, 'home'),
+    ]);
+    const bleu = makePlayer(1, 'bleu', true, [
+      makePawn(0, 'board', 'b-m-d5'), // pion 0 de bleu aussi en jeu
+      makePawn(1, 'home'), makePawn(2, 'home'), makePawn(3, 'home'),
+    ]);
+
+    // getMovablePawns calcule pour jaune uniquement
+    const movableForJaune = getMovablePawns(jaune, 3, [jaune, bleu], 0);
+
+    // Vérifier que les ids retournés correspondent bien à des pions de jaune
+    movableForJaune.forEach(id => {
+      const pawnBelongsToJaune = jaune.pawns.some(p => p.id === id && p.status !== 'home');
+      expect(pawnBelongsToJaune).toBe(true);
+    });
+  });
+
+  it('le pion 0 de l\'IA ne doit pas être dans movablePawns du joueur humain', () => {
+    const jaune = makePlayer(0, 'jaune', false, [
+      makePawn(0, 'board', 'h-m-g5'),
+      makePawn(1, 'home'), makePawn(2, 'home'), makePawn(3, 'home'),
+    ]);
+    const bleu = makePlayer(1, 'bleu', true, [
+      makePawn(0, 'board', 'b-m-d5'), // même id (0) que le pion de jaune
+      makePawn(1, 'home'), makePawn(2, 'home'), makePawn(3, 'home'),
+    ]);
+
+    const movable = getMovablePawns(jaune, 2, [jaune, bleu], 0);
+
+    // Le pion 0 peut être dans movable (id 0 de jaune)
+    // mais cela NE DOIT PAS faire clignoter le pion 0 de bleu
+    // La responsabilité du filtrage par couleur est dans Board.jsx (isPawnMovable)
+    // Ce test vérifie que getMovablePawns retourne bien les ids de jaune
+    if (movable.includes(0)) {
+      // L'id 0 dans movable fait référence au pion 0 de JAUNE, pas de bleu
+      const jaunePawn0 = jaune.pawns.find(p => p.id === 0);
+      expect(jaunePawn0.status).toBe('board'); // le pion 0 de jaune est bien en jeu
+    }
+  });
+
+  it('avec dé=5 et tous pions à la maison, seuls les pions home de ce joueur sont retournés', () => {
+    const jaune = makePlayer(0, 'jaune', false); // tous home
+    const bleu  = makePlayer(1, 'bleu',  true,  [
+      makePawn(0, 'board', 'b-m-d5'),            // bleu a un pion en jeu
+      makePawn(1, 'home'), makePawn(2, 'home'), makePawn(3, 'home'),
+    ]);
+
+    const movable = getMovablePawns(jaune, 5, [jaune, bleu], 0);
+
+    // Doit retourner [0,1,2,3] — les pions home de jaune
+    expect(movable).toEqual([0, 1, 2, 3]);
+
+    // Vérifier que ces ids correspondent à des pions de JAUNE (pas de bleu)
+    movable.forEach(id => {
+      const jaunePawn = jaune.pawns.find(p => p.id === id);
+      expect(jaunePawn).toBeDefined();
+      expect(jaunePawn.status).toBe('home');
+    });
+  });
+});

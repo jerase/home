@@ -22,7 +22,13 @@ const BOARD_ROTATION = {
   rouge:  90,   // zone droite → rotation 90°  (quart de tour droit)
 };
 
-export default function Board({ players, movablePawns, onPawnClick, humanColor, size = 370 }) {
+export default function Board({ players, movablePawns, onPawnClick, humanColor, currentPlayerColor, size = 370 }) {
+  // Un pion est déplaçable uniquement s'il appartient au joueur actuel
+  // ET que son id est dans movablePawns.
+  // RÈGLE : seuls les pions du joueur dont c'est le tour peuvent clignoter.
+  function isPawnMovable(pawnId, pawnColor) {
+    return pawnColor === currentPlayerColor && movablePawns.includes(pawnId);
+  }
   const rotation = humanColor ? (BOARD_ROTATION[humanColor] ?? 0) : 0;
   const rotateTransform = rotation !== 0 ? `rotate(${rotation}, 185, 185)` : undefined;
   // Regrouper tous les pions par case pour gérer les offsets
@@ -251,15 +257,15 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
           .filter(p => p.status === 'home')
           .map((pawn, i) => {
             const pos = HOME_POSITIONS[player.color][pawn.id];
-            const isMovable = movablePawns.includes(pawn.id) &&
-              players.find(pl => pl.color === player.color)?.pawns.find(p2 => p2.id === pawn.id)?.status === 'home';
+            // isMovable : le pion doit appartenir au joueur actuel ET être dans movablePawns
+            const isMovable = isPawnMovable(pawn.id, player.color);
             return (
               <Pawn
                 key={`${player.color}-${pawn.id}`}
                 color={player.color}
                 cx={pos.cx}
                 cy={pos.cy}
-                isMovable={isMovable && players.find(pl => pl.color === player.color)?.id === players.find(pl => movablePawns.includes(pawn.id) && pl.pawns.some(p2 => p2.id === pawn.id))?.id}
+                isMovable={isMovable}
                 onClick={() => onPawnClick(player.color, pawn.id)}
               />
             );
@@ -302,7 +308,8 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
         if (!coords) return null;
         return cellPawns.map((pawn, idx) => {
           const offset = getPawnOffset(idx, cellPawns.length);
-          const isMovable = movablePawns.includes(pawn.id);
+          // isMovable : vérifier la couleur du pion ET son id dans movablePawns
+          const isMovable = isPawnMovable(pawn.id, pawn.color);
           return (
             <Pawn
               key={`${pawn.color}-${pawn.id}`}
