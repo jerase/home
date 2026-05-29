@@ -7,7 +7,7 @@ import { PLAYER_COLORS, PLAYER_LABELS } from '../../logic/constants.js';
 export default function GameScreen({ state, dispatch }) {
   const {
     players, turnOrder, currentPlayerIndex,
-    phase, diceValue, movablePawns, consecutiveSixes, message,
+    phase, diceValue, lastDiceValue, movablePawns, consecutiveSixes, message,
   } = state;
 
   // Mesure du conteneur pour adapter dynamiquement la taille du plateau
@@ -31,12 +31,21 @@ export default function GameScreen({ state, dispatch }) {
   }, []);
 
   // Transition automatique showing_result → move après 800ms
-  // Permet à l'humain de voir la face du dé avant de choisir un pion
   useEffect(() => {
     if (phase !== 'showing_result') return;
     const timer = setTimeout(() => {
       dispatch({ type: 'SHOW_RESULT_DONE' });
     }, 800);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
+  // Transition between_turns → tour suivant après 2000ms
+  // Déclenché uniquement après le tour d'un joueur humain
+  useEffect(() => {
+    if (phase !== 'between_turns') return;
+    const timer = setTimeout(() => {
+      dispatch({ type: 'BETWEEN_TURNS_DONE' });
+    }, 2000);
     return () => clearTimeout(timer);
   }, [phase]);
 
@@ -46,8 +55,9 @@ export default function GameScreen({ state, dispatch }) {
   const currentPlayer    = players[currentPlayerId];
   const isHumanTurn      = !currentPlayer?.isAI;
   const canRoll          = isHumanTurn && phase === 'roll';
-  // Pendant showing_result : bloquer les interactions, montrer le résultat
+  // Pendant showing_result ou between_turns : bloquer les interactions
   const isShowingResult  = phase === 'showing_result';
+  const isBetweenTurns   = phase === 'between_turns';
   const accentColor      = PLAYER_COLORS[currentPlayer?.color] ?? '#FFD700';
 
   function handleRoll() {
@@ -108,7 +118,7 @@ export default function GameScreen({ state, dispatch }) {
         </p>
       )}
       <div className="flex items-center gap-4">
-        <Dice value={diceValue} onRoll={handleRoll} canRoll={canRoll} size={diceSize} />
+        <Dice value={lastDiceValue ?? diceValue} onRoll={handleRoll} canRoll={canRoll} size={diceSize} />
         {phase === 'move' && (
           <span className="text-yellow-300 text-sm animate-pulse font-medium">
             Choisissez un pion
@@ -117,6 +127,11 @@ export default function GameScreen({ state, dispatch }) {
         {isShowingResult && (
           <span className="text-green-300 text-sm animate-pulse font-medium">
             Résultat affiché…
+          </span>
+        )}
+        {isBetweenTurns && (
+          <span className="text-white/50 text-sm animate-pulse">
+            Changement de joueur…
           </span>
         )}
         {phase === 'ai_thinking' && (

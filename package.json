@@ -7,16 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "clean": "rmdir /s /q dist 2>nul & rmdir /s /q node_modules\\.vite 2>nul & echo Clean OK"
+    "clean": "rmdir /s /q dist 2>nul & rmdir /s /q node_modules\\.vite 2>nul & echo Clean OK",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
     "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "^4.1.7",
     "tailwindcss": "^4.0.0",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vitest": "^4.1.7"
   }
 }

@@ -86,7 +86,7 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
       <rect x="125" y="95"  width="40" height="15" fill="#a8bfa8"/>
       <rect x="125" y="110" width="40" height="15" fill="#a8bfa8"/>
       {/* milieu (couloir jaune) */}
-      <rect x="165" y="5"   width="40" height="15" fill={PLAYER_COLORS.jaune} opacity="0.5"/>
+      <rect x="165" y="5"   width="40" height="15" fill={PLAYER_COLORS.jaune} opacity="0.6"/>
       <rect x="165" y="20"  width="40" height="15" fill={PLAYER_COLORS.jaune} opacity="0.35"/>
       <rect x="165" y="35"  width="40" height="15" fill={PLAYER_COLORS.jaune} opacity="0.35"/>
       <rect x="165" y="50"  width="40" height="15" fill={PLAYER_COLORS.jaune} opacity="0.35"/>
@@ -136,7 +136,7 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
       <rect x="165" y="305" width="40" height="15" fill={PLAYER_COLORS.bleu} opacity="0.35"/>
       <rect x="165" y="320" width="40" height="15" fill={PLAYER_COLORS.bleu} opacity="0.35"/>
       <rect x="165" y="335" width="40" height="15" fill={PLAYER_COLORS.bleu} opacity="0.35"/>
-      <rect x="165" y="350" width="40" height="15" fill={PLAYER_COLORS.bleu} opacity="0.5"/>
+      <rect x="165" y="350" width="40" height="15" fill={PLAYER_COLORS.bleu} opacity="0.6"/>
       {/* droite */}
       <rect x="205" y="245" width="40" height="15" fill="#a8bfa8"/>
       <rect x="205" y="260" width="40" height="15" fill="#a8bfa8"/>
@@ -172,7 +172,7 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
       <rect x="95"  y="125" width="15" height="40" fill="#a8bfa8"/>
       <rect x="110" y="125" width="15" height="40" fill="#a8bfa8"/>
       {/* milieu (couloir vert) */}
-      <rect x="5"   y="165" width="15" height="40" fill={PLAYER_COLORS.vert} opacity="0.5"/>
+      <rect x="5"   y="165" width="15" height="40" fill={PLAYER_COLORS.vert} opacity="0.6"/>
       <rect x="20"  y="165" width="15" height="40" fill={PLAYER_COLORS.vert} opacity="0.35"/>
       <rect x="35"  y="165" width="15" height="40" fill={PLAYER_COLORS.vert} opacity="0.35"/>
       <rect x="50"  y="165" width="15" height="40" fill={PLAYER_COLORS.vert} opacity="0.35"/>
@@ -222,7 +222,7 @@ export default function Board({ players, movablePawns, onPawnClick, humanColor, 
       <rect x="305" y="165" width="15" height="40" fill={PLAYER_COLORS.rouge} opacity="0.35"/>
       <rect x="320" y="165" width="15" height="40" fill={PLAYER_COLORS.rouge} opacity="0.35"/>
       <rect x="335" y="165" width="15" height="40" fill={PLAYER_COLORS.rouge} opacity="0.35"/>
-      <rect x="350" y="165" width="15" height="40" fill={PLAYER_COLORS.rouge} opacity="0.5"/>
+      <rect x="350" y="165" width="15" height="40" fill={PLAYER_COLORS.rouge} opacity="0.6"/>
       {/* bas */}
       <rect x="245" y="205" width="15" height="40" fill="#a8bfa8"/>
       <rect x="260" y="205" width="15" height="40" fill="#a8bfa8"/>

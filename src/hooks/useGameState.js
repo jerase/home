@@ -16,8 +16,12 @@ const initialState = {
   players: [],
   turnOrder: [],
   currentPlayerIndex: 0,
+  // 'roll' | 'showing_result' | 'move' | 'between_turns' | 'ai_thinking' | 'ended'
+  // 'between_turns' : délai de 2s après le tour d'un humain avant le tour suivant
   phase: 'roll',
   diceValue: null,
+  // Dernier résultat de dé — persiste entre les tours pour l'affichage dans Dice
+  lastDiceValue: null,
   consecutiveSixes: 0,
   rollsWithoutMove: 0,
   movablePawns: [],
@@ -96,6 +100,7 @@ function gameReducer(state, action) {
         return {
           ...state,
           diceValue,
+          lastDiceValue: diceValue,
           message: `${currentPlayer.color} passe son tour (barrage sur sa case de départ).`,
           ...nextPlayerState(state),
         };
@@ -137,6 +142,7 @@ function gameReducer(state, action) {
           return {
             ...state,
             diceValue,
+          lastDiceValue: diceValue,
             consecutiveSixes: 0,
             rollsWithoutMove: 0,
             players: updatedPlayers,
@@ -158,6 +164,7 @@ function gameReducer(state, action) {
           return {
             ...state,
             diceValue,
+          lastDiceValue: diceValue,
             consecutiveSixes: 0,
             rollsWithoutMove: 0,
             movablePawns: [],
@@ -175,6 +182,7 @@ function gameReducer(state, action) {
           return {
             ...state,
             diceValue,
+          lastDiceValue: diceValue,
             consecutiveSixes: 0,
             rollsWithoutMove: 0,
             movablePawns: [],
@@ -192,6 +200,7 @@ function gameReducer(state, action) {
         return {
           ...state,
           diceValue,
+          lastDiceValue: diceValue,
           consecutiveSixes: newConsec,
           rollsWithoutMove: newRollsWithoutMove,
           movablePawns: movable,
@@ -209,6 +218,7 @@ function gameReducer(state, action) {
         return {
           ...state,
           diceValue,
+          lastDiceValue: diceValue,
           consecutiveSixes: 0,
           rollsWithoutMove: 0,
           movablePawns: [],
@@ -223,6 +233,7 @@ function gameReducer(state, action) {
       return {
         ...state,
         diceValue,
+          lastDiceValue: diceValue,
         consecutiveSixes: 0,
         rollsWithoutMove: 0,
         movablePawns: movable,
@@ -300,21 +311,31 @@ function gameReducer(state, action) {
       }
 
       // Mouvement normal → joueur suivant
+      // Si c'était un humain qui jouait → délai de 2s avant le tour suivant
+      const wasHuman = !currentPlayer.isAI;
       return {
         ...state,
         players: updatedPlayers,
         movablePawns: [],
         message: msg,
-        ...nextPlayerState({ ...state, players: updatedPlayers }),
+        ...nextPlayerState({ ...state, players: updatedPlayers }, wasHuman),
       };
     }
 
-    // Transition showing_result → move
-    // Déclenchée automatiquement 800ms après le lancer humain
-    // pour laisser le temps de voir la face du dé
+    // Transition showing_result → move (800ms après le lancer humain)
     case 'SHOW_RESULT_DONE': {
       if (state.phase !== 'showing_result') return state;
       return { ...state, phase: 'move' };
+    }
+
+    // Transition between_turns → tour suivant (2s après la fin du tour humain)
+    case 'BETWEEN_TURNS_DONE': {
+      if (state.phase !== 'between_turns') return state;
+      const nextPlayer = state.players[state.turnOrder[state.currentPlayerIndex]];
+      return {
+        ...state,
+        phase: nextPlayer.isAI ? 'ai_thinking' : 'roll',
+      };
     }
 
     case 'NEXT_PLAYER': {
@@ -330,16 +351,21 @@ function gameReducer(state, action) {
   }
 }
 
-function nextPlayerState(state) {
+function nextPlayerState(state, humanJustPlayed = false) {
   const nextIndex = (state.currentPlayerIndex + 1) % state.turnOrder.length;
   const nextPlayer = state.players[state.turnOrder[nextIndex]];
+  // Si un humain vient de jouer → phase 'between_turns' (délai 2s dans GameScreen)
+  // Sinon → démarrer directement le tour suivant
+  const nextPhase = humanJustPlayed
+    ? 'between_turns'
+    : (nextPlayer.isAI ? 'ai_thinking' : 'roll');
   return {
     currentPlayerIndex: nextIndex,
     consecutiveSixes: 0,
     rollsWithoutMove: 0,
     diceValue: null,
     movablePawns: [],
-    phase: nextPlayer.isAI ? 'ai_thinking' : 'roll',
+    phase: nextPhase,
   };
 }
 

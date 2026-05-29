@@ -1,4 +1,10 @@
-import { useState, useEffect } from 'react';
+// ============================================================
+// FICHIER : Dice.jsx
+// Affiche la face du dé et le bouton Lancer.
+// Reçoit `value` = lastDiceValue depuis GameScreen,
+// qui persiste entre les tours — plus de bug avec le "?".
+// ============================================================
+import { useState } from 'react';
 
 const DOTS = {
   1: [[50,50]],
@@ -15,14 +21,6 @@ const VALUE_LABELS = {
 
 export default function Dice({ value, onRoll, canRoll, size = 64 }) {
   const [rolling, setRolling] = useState(false);
-  // Conserve la dernière face affichée même quand value repasse à null
-  const [displayValue, setDisplayValue] = useState(null);
-
-  useEffect(() => {
-    if (value !== null && value !== undefined) {
-      setDisplayValue(value);
-    }
-  }, [value]);
 
   function handleRoll() {
     if (!canRoll || rolling) return;
@@ -31,12 +29,12 @@ export default function Dice({ value, onRoll, canRoll, size = 64 }) {
     onRoll();
   }
 
-  const dots = displayValue ? DOTS[displayValue] : [];
+  const dots = value ? DOTS[value] : [];
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2">
 
-      {/* ── Face du dé (affichage uniquement, non cliquable) ── */}
+      {/* ── Face du dé (affichage uniquement) ── */}
       <div className={rolling ? 'dice-rolling' : ''} style={{ width: size, height: size }}>
         <svg viewBox="0 0 100 100" width={size} height={size}>
           <rect x="3" y="3" width="94" height="94" rx="18" ry="18"
@@ -45,24 +43,24 @@ export default function Dice({ value, onRoll, canRoll, size = 64 }) {
           {dots.map(([cx, cy], i) => (
             <circle key={i} cx={cx} cy={cy} r="8" fill="#1a1a2e" />
           ))}
-          {!displayValue && (
+          {!value && (
             <text x="50" y="60" textAnchor="middle" fontSize="30" fill="#94a3b8"
                   fontFamily="Georgia, serif">?</text>
           )}
         </svg>
       </div>
 
-      {/* ── Résultat en chiffre ── */}
+      {/* ── Résultat en chiffre + label ── */}
       <div className="flex flex-col items-center" style={{ minHeight: 32 }}>
-        {displayValue ? (
+        {value ? (
           <>
             <span className="font-bold text-white leading-none"
                   style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', textShadow: '0 0 12px rgba(255,255,255,0.3)' }}>
-              {displayValue}
+              {value}
             </span>
             <span className="text-white/40 uppercase tracking-widest"
                   style={{ fontSize: 'clamp(0.5rem, 1.5vw, 0.65rem)' }}>
-              {displayValue === 5 ? '★ cinq ★' : displayValue === 6 ? '⚡ six ⚡' : VALUE_LABELS[displayValue]}
+              {value === 5 ? '★ cinq ★' : value === 6 ? '⚡ six ⚡' : VALUE_LABELS[value]}
             </span>
           </>
         ) : (
